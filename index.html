@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Chat Profesional</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial;
+    background: #1f1f1f;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+#login {
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    width: 300px;
+    text-align: center;
+}
+
+#chat {
+    display: none;
+    background: white;
+    width: 400px;
+    height: 600px;
+    border-radius: 10px;
+    flex-direction: column;
+}
+
+.header {
+    background: #4CAF50;
+    color: white;
+    padding: 15px;
+    text-align: center;
+    position: relative;
+}
+
+.logout {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    cursor: pointer;
+}
+
+.messages {
+    flex: 1;
+    padding: 10px;
+    overflow-y: auto;
+    background: #f5f5f5;
+}
+
+.message {
+    margin-bottom: 10px;
+    padding: 8px;
+    border-radius: 8px;
+    max-width: 70%;
+}
+
+.my { background: #4CAF50; color: white; margin-left: auto; }
+.other { background: #ddd; }
+.system { text-align: center; font-size: 12px; color: gray; }
+
+.input-area {
+    display: flex;
+    padding: 10px;
+}
+
+input {
+    flex: 1;
+    padding: 8px;
+    margin-bottom: 10px;
+}
+
+button {
+    padding: 8px;
+}
+</style>
+</head>
+
+<body>
+
+<div id="login">
+    <h2>Login</h2>
+    <input type="text" id="username" placeholder="Usuario">
+    <input type="password" id="password" placeholder="Contraseña">
+    <button onclick="login()">Ingresar</button>
+    <p id="loginError" style="color:red;"></p>
+</div>
+
+<div id="chat">
+    <div class="header">
+        <span id="userDisplay"></span>
+        <span class="logout" onclick="logout()">Salir</span>
+    </div>
+
+    <div class="messages" id="messages"></div>
+
+    <div class="input-area">
+        <input type="text" id="messageInput" placeholder="Mensaje">
+        <button onclick="sendMessage()">Enviar</button>
+    </div>
+</div>
+
+<script>
+
+const socket = new WebSocket("ws://localhost:3000");
+let currentUser = null;
+
+// LOGIN con botón o ENTER
+function login() {
+    const username = document.getElementById("username").value.trim();
+    const password = document.getElementById("password").value.trim();
+
+    socket.send(JSON.stringify({
+        type: "login",
+        user: username,
+        password: password
+    }));
+}
+
+// ENTER en usuario y contraseña
+document.getElementById("username").addEventListener("keypress", function(e) {
+    if (e.key === "Enter") login();
+});
+
+document.getElementById("password").addEventListener("keypress", function(e) {
+    if (e.key === "Enter") login();
+});
+
+// ENTER para enviar mensaje
+document.getElementById("messageInput").addEventListener("keypress", function(e) {
+    if (e.key === "Enter") sendMessage();
+});
+
+function logout() {
+    socket.send(JSON.stringify({ type: "logout" }));
+    location.reload();
+}
+
+function sendMessage() {
+    const input = document.getElementById("messageInput");
+    const message = input.value.trim();
+    if (message === "") return;
+
+    socket.send(JSON.stringify({
+        type: "message",
+        message: message
+    }));
+
+    input.value = "";
+}
+
+socket.onmessage = function(event) {
+
+    const data = JSON.parse(event.data);
+
+    if (data.type === "loginError") {
+        document.getElementById("loginError").innerText = data.message;
+        return;
+    }
+
+    if (data.type === "loginSuccess") {
+        currentUser = data.user;
+        document.getElementById("userDisplay").innerText = currentUser;
+        document.getElementById("login").style.display = "none";
+        document.getElementById("chat").style.display = "flex";
+        return;
+    }
+
+    const messages = document.getElementById("messages");
+
+    if (data.type === "system") {
+        const div = document.createElement("div");
+        div.classList.add("system");
+        div.innerText = data.message;
+        messages.appendChild(div);
+        return;
+    }
+
+    if (data.type === "message") {
+        const div = document.createElement("div");
+        div.classList.add("message");
+
+        if (data.user === currentUser) div.classList.add("my");
+        else div.classList.add("other");
+
+        div.innerHTML = `<strong>${data.user}</strong> (${data.time})<br>${data.message}`;
+        messages.appendChild(div);
+        messages.scrollTop = messages.scrollHeight;
+    }
+};
+
+</script>
+
+</body>
+</html>
+
