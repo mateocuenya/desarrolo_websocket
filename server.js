@@ -3,148 +3,79 @@ const fs = require("fs");
 const path = require("path");
 const WebSocket = require("ws");
 
+const usuarios = {
+  admin: "1234",
+  juan: "abcd",
+  test: "test"
+};
+
+
 const server = http.createServer((req, res) => {
-    if (req.url === "/") {
-        const filePath = path.join(__dirname, "index.html");
+  let filePath = "./public" + (req.url === "/" ? "/login.html" : req.url);
+  const ext = path.extname(filePath);
 
-        fs.readFile(filePath, (err, data) => {
-            if (err) {
-                res.writeHead(500);
-                res.end("Error cargando archivo");
-                return;
-            }
+  let tipope = "text/html";
+  if (ext === ".css") tipope = "text/css";
+  if (ext === ".js") tipope = "text/javascript";
 
-            res.writeHead(200, { "Content-Type": "text/html" });
-            res.end(data);
-        });
+  fs.readFile(filePath, (err, content) => {
+    if (err) {
+      res.writeHead(404);
+      res.end("Archivo no encontrado");
+    } else {
+      res.writeHead(200, { "Content-Type": tipope });
+      res.end(content);
     }
+  });
 });
 
 const wss = new WebSocket.Server({ server });
 
-// 🔐 Usuarios simulados (usuario: contraseña)
-const usersDB = {
-    "juan": "1234",
-    "maria": "abcd",
-    "admin": "admin"
-};
+wss.on("connection", (ws) => {
+  console.log("Usuario conectado");
 
-let connectedUsers = new Map(); // socket -> username
+  ws.on("message", (message) => {
 
-function broadcast(data) {
-    const message = JSON.stringify(data);
-    wss.clients.forEach(client => {
-        if (client.readyState === WebSocket.OPEN) {
-            client.send(message);
-        }
-    });
-}
+    console.log("Mensaje recibido en servidor:", message.toString());
+    const data = JSON.parse(message);
 
-function isUsernameTaken(username) {
-    for (let user of connectedUsers.values()) {
-        if (user === username) return true;
+    // 🔹 LOGIN
+    if (data.type === "login") {
+      const { usuario, contrasena } = data;
+
+      if (usuarios[usuario] && usuarios[usuario] === contrasena) {
+        ws.send(JSON.stringify({
+          type: "login_exito"
+        }));
+      } else {
+        ws.send(JSON.stringify({
+          type: "login_error",
+          message: "Usuario o contraseña incorrectos"
+        }));
+      }
+      return;
     }
-    return false;
-}
 
-wss.on("connection", (socket) => {
-
-    socket.on("message", (message) => {
-
-        let data;
-        try {
-            data = JSON.parse(message.toString());
-        } catch {
-            return;
+    // MENSAJES DE CHAT
+    if (data.type === "chat") {
+      wss.clients.forEach((client) => {
+        if (client.readyState === WebSocket.OPEN) {
+          client.send(JSON.stringify({
+            type: "chat",
+            user: data.user,
+            text: data.text
+          }));
         }
+      });
+    }
+  });
 
-        // LOGIN
-        if (data.type === "login") {
-
-            const username = data.user?.trim();
-            const password = data.password?.trim();
-
-            if (!username || !password) {
-                socket.send(JSON.stringify({
-                    type: "loginError",
-                    message: "Usuario y contraseña requeridos."
-                }));
-                return;
-            }
-
-            if (!usersDB[username] || usersDB[username] !== password) {
-                socket.send(JSON.stringify({
-                    type: "loginError",
-                    message: "Credenciales incorrectas."
-                }));
-                return;
-            }
-
-            if (isUsernameTaken(username)) {
-                socket.send(JSON.stringify({
-                    type: "loginError",
-                    message: "Usuario ya conectado."
-                }));
-                return;
-            }
-
-            connectedUsers.set(socket, username);
-
-            socket.send(JSON.stringify({
-                type: "loginSuccess",
-                user: username
-            }));
-
-            broadcast({
-                type: "system",
-                message: `${username} ha entrado al chat.`
-            });
-
-            return;
-        }
-
-        // MENSAJES
-        if (data.type === "message") {
-
-            if (!connectedUsers.has(socket)) return;
-
-            const username = connectedUsers.get(socket);
-            const msg = data.message?.trim();
-
-            if (!msg || msg.length > 200) return;
-
-            broadcast({
-                type: "message",
-                user: username,
-                message: msg,
-                time: new Date().toLocaleTimeString()
-            });
-        }
-
-        // LOGOUT
-        if (data.type === "logout") {
-            const username = connectedUsers.get(socket);
-            connectedUsers.delete(socket);
-
-            broadcast({
-                type: "system",
-                message: `${username} ha salido del chat.`
-            });
-        }
-    });
-
-    socket.on("close", () => {
-        const username = connectedUsers.get(socket);
-        if (username) {
-            connectedUsers.delete(socket);
-            broadcast({
-                type: "system",
-                message: `${username} se desconectó.`
-            });
-        }
-    });
+  ws.on("close", () => {
+    console.log("Usuario desconectado");
+  });
 });
 
+
 server.listen(3000, () => {
-    console.log("Servidor en http://localhost:3000");
+  console.log("Servidor en http://localhost:3000");
 });

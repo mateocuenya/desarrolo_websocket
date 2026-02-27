@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Chat</title>
+  <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+
+  <div class="contenedor-chat">
+    <div class="barrasuperior-chat">
+      <h2>Chat WebSocket</h2>
+      <button id="botonLogOut">Salir</button>
+    </div>
+
+    <ul id="mensajes"></ul>
+
+    <div class="chat-input">
+      <input id="mensajeInput" placeholder="Escribí un mensaje...">
+      <button id="enviarBoton">Enviar</button>
+    </div>
+  </div>
+
+  <div id="popup" class="popup">
+  <div class="contenido-popup">
+    <p id="popup-mensaje"></p>
+    <button onclick="cerrarPopUp()">Cerrar</button>
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>

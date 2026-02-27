@@ -1,0 +1,280 @@
+/* Reset básico */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
+
+/* Fondo general */
+body {
+  height: 100vh;
+  background: linear-gradient(135deg, #4e73df, #1cc88a);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/*  LOGIN  */
+
+.login-gral {
+  background: white;
+  padding: 40px;
+  width: 350px;
+  border-radius: 12px;
+  box-shadow: 0px 15px 35px rgba(0,0,0,0.25);
+  text-align: center;
+  animation: fadeIn 0.4s ease-in-out;
+}
+
+.login-gral h2 {
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.login-gral input {
+  width: 100%;
+  padding: 12px;
+  margin: 10px 0;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  transition: 0.2s;
+}
+
+.login-gral input:focus {
+  border-color: #4e73df;
+  outline: none;
+  box-shadow: 0 0 5px rgba(78,115,223,0.4);
+}
+
+.login-gral button {
+  width: 100%;
+  padding: 12px;
+  margin-top: 15px;
+  border: none;
+  border-radius: 8px;
+  background-color: #4e73df;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.login-gral button:hover {
+  background-color: #2e59d9;
+}
+
+/* ---------------- CHAT ---------------- */
+
+.contenedor-chat {
+  width: 500px;
+  height: 600px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0px 15px 35px rgba(0,0,0,0.25);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: fadeIn 0.4s ease-in-out;
+}
+
+.barrasuperior-chat {
+  background-color: #4e73df;
+  color: white;
+  padding: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.barrasuperior-chat button {
+  background: #e74a3b;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  color: white;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.barrasuperior-chat button:hover {
+  background: #c0392b;
+}
+
+/* Input de mensaje */
+
+.chat-input {
+  display: flex;
+  padding: 10px;
+  border-top: 1px solid #ddd;
+}
+
+.chat-input input {
+  flex: 1;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+.chat-input button {
+  margin-left: 10px;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 8px;
+  background-color: #1cc88a;
+  color: white;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.chat-input button:disabled {
+  background-color: #aaa;
+  cursor: not-allowed;
+}
+
+.chat-input button:hover:not(:disabled) {
+  background-color: #17a673;
+}
+
+/* Lista de mensajes */
+
+#mensajes {
+  flex: 1;
+  list-style: none;
+  padding: 15px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+#mensajes li {
+  display: flex;
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.mensaje-otro {
+  background: #f1f1f1;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.mensaje-propio {
+  background: #1cc88a;
+  color: white;
+  justify-content: flex-end;
+  display: flex;
+}
+
+/* Contenedor burbuja */
+.burbuja {
+  padding: 10px 14px;
+  border-radius: 18px;
+  max-width: 60%;
+  word-wrap: break-word;
+}
+
+
+.mensaje-propio .burbuja {
+  background-color: #27ae60;
+  color: white;
+  border-bottom-right-radius: 4px;
+}
+
+
+.mensaje-otro .burbuja {
+  background-color: #f1f1f1;
+  color: #333;
+  border-bottom-left-radius: 4px;
+}
+
+/* Nombre del usuario */
+.mensaje-usuario {
+  font-size: 12px;
+  font-weight: bold;
+  opacity: 0.7;
+}
+
+/* Texto */
+.mensaje-texto {
+  font-size: 14px;
+}
+
+/* Hora */
+.mensaje-hora {
+  font-size: 11px;
+  opacity: 0.6;
+  align-self: flex-end;
+}
+
+
+
+/* Animación */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.popup {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(5px);
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.contenido-popup {
+  background: white;
+  padding: 30px;
+  border-radius: 14px;
+  text-align: center;
+  width: 340px;
+  animation: popupFade 0.25s ease;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.25);
+}
+
+.contenido-popup p {
+  margin-bottom: 20px;
+  font-size: 15px;
+  color: #333;
+}
+
+.contenido-popup button {
+  background: #e74a3b;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+
+.contenido-popup button:hover {
+  background: #c0392b;
+}
+
+
+@keyframes popupFade {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+

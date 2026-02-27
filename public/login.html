@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Login</title>
+  <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+
+  <div class="login-gral">
+    <h2>Iniciar Sesión</h2>
+
+    <input type="text" id="usuarioInput" placeholder="Usuario (max 30)" autocomplete="off">
+    <input type="password" id="contrasenaInput" placeholder="Contraseña" autocomplete="off">
+
+    <button id="botonLogin">Ingresar</button>
+  </div>
+
+  <script src="script.js"></script>
+
+  <div id="loginPopup" class="popup">
+  <div class="contenido-popup">
+    <p id="popUpLoginMensaje"></p>
+    <button onclick="cerrarPopUpLogin()">Aceptar</button>
+  </div>
+</div>
+
+  
+</body>
+</html>
+
